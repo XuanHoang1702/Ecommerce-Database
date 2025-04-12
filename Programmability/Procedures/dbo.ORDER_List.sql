@@ -1,0 +1,15 @@
+﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+CREATE PROCEDURE [dbo].[ORDER_List]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select U.USER_LAST_NAME, O.ID as ORDER_ID, O.TOTAL_QUANTITY, O.TOTAL_PRICE, A.HOUSE_NUMBER, A.STREET, A.CITY, A.POSTAL_CODE, A.COUNTRY, A.TYPE_ADDRESS
+	from ORDERS O
+	left join ADDRESSES A on O.ADDRESS_ID = A.ID
+	left join USERS U on O.[USER_ID] = U.USER_ID
+    
+END
+GO

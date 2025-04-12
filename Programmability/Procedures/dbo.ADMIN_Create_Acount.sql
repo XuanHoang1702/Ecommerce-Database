@@ -1,0 +1,84 @@
+﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+CREATE PROCEDURE [dbo].[ADMIN_Create_Acount] 
+	@p_ADMIN_DATA_JSON NVARCHAR(MAX)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	BEGIN TRANSACTION;
+	BEGIN TRY
+		DECLARE @p_ID NVARCHAR(50),
+				@p_ADMIN_NAME NVARCHAR(255),
+				@p_ADMIN_EMAIL NVARCHAR(255),
+				@p_ADMIN_PHONE NVARCHAR(255),
+				@p_ADMIN_PASSWORD NVARCHAR(255),
+				@p_ROLE NVARCHAR(50),
+				@p_ADMIN_ID NVARCHAR(10)
+
+		-- Đọc dữ liệu JSON
+		SELECT @p_ID = Id,
+			   @p_ADMIN_NAME = AdminName,
+			   @p_ADMIN_EMAIL = AdminEmail,
+			   @p_ADMIN_PHONE = AdminPhone, 
+			   @p_ADMIN_PASSWORD = AdminPassword,
+			   @p_ROLE = [Role],
+			   @p_ADMIN_ID = AdminId
+
+		FROM OPENJSON(@p_ADMIN_DATA_JSON)
+		WITH (
+			Id NVARCHAR(50) '$.ID',
+			AdminName NVARCHAR(255) '$.ADMIN_NAME',
+			AdminEmail NVARCHAR(255) '$.ADMIN_EMAIL',
+			AdminPhone NVARCHAR(255) '$.ADMIN_PHONE',
+			AdminPassword NVARCHAR(255) '$.ADMIN_PASSWORD',
+			[Role] NVARCHAR(50) '$.ROLE',
+			AdminId NVARCHAR(10) '$.ADMIN_ID'
+		);
+
+		--
+		IF EXISTS (SELECT 1 FROM ADMIN WHERE ADMIN_EMAIL = @p_ADMIN_EMAIL)
+		BEGIN
+			ROLLBACK TRANSACTION;
+			select N'Email đã tồn tại' as RESULT,
+				    409 as CODE
+			RETURN;
+		END
+		IF EXISTS (SELECT 1 FROM ADMIN WHERE ADMIN_PHONE = @p_ADMIN_PHONE)
+		BEGIN
+			ROLLBACK TRANSACTION;
+			select N'Số điện thoại đã tồn tại' as RESULT,
+					409 as CODE
+			RETURN;
+		END
+
+		declare @p_ROLE_RESULT nvarchar(10)
+		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
+
+		if @p_ROLE_RESULT != 'OK'
+		begin
+			rollback transaction
+			select N'Không đủ quyền' as RESULT,
+					403 as CODE
+			return
+		end
+
+		--
+		INSERT INTO ADMIN (ADMIN_ID, ADMIN_NAME, ADMIN_EMAIL, ADMIN_PHONE, ADMIN_PASSWORD, [ROLE], CREATED_AT, UPDATED_AT)
+		VALUES (@p_ID, @p_ADMIN_NAME, @p_ADMIN_EMAIL, @p_ADMIN_PHONE, @p_ADMIN_PASSWORD, @p_ROLE, GETDATE(), GETDATE());
+
+		if @@ROWCOUNT <> 0
+		begin 
+			COMMIT TRANSACTION;
+			SELECT ADMIN_ID, ADMIN_NAME, ADMIN_EMAIL, ADMIN_PHONE, [ROLE], N'Tạo tài khoản thành công' as RESULT, 201 as CODE
+			FROM [dbo].[ADMIN]
+			WHERE ADMIN_ID = @p_ADMIN_ID
+		end
+
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION;
+		select  ERROR_MESSAGE() as RESULT,
+				ERROR_NUMBER() as CODE
+	END CATCH
+END
+GO

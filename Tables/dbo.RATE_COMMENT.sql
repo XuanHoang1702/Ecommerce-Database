@@ -1,0 +1,13 @@
+﻿CREATE TABLE [dbo].[RATE_COMMENT] (
+  [ID] [int] IDENTITY,
+  [RATE] [int] NULL,
+  [COMMENT] [nvarchar](max) NULL,
+  [PRODUCT_ID] [int] NOT NULL,
+  [USER_ID] [int] NOT NULL,
+  [CREATED_AT] [date] NULL,
+  PRIMARY KEY CLUSTERED ([ID]),
+  CHECK ([RATE]=(5) OR [RATE]=(1))
+)
+ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY]
+GO

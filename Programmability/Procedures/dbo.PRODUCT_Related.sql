@@ -1,0 +1,27 @@
+﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+CREATE PROCEDURE [dbo].[PRODUCT_Related] 
+	-- Add the parameters for the stored procedure here
+	@p_PRODUCT_ID INT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	DECLARE	 @p_CATEGORY_ID INT
+	SELECT @p_CATEGORY_ID = CATEGORY_ID
+	FROM PRODUCTS
+	WHERE @p_PRODUCT_ID = PRODUCT_ID
+
+    -- Insert statements for procedure here
+	SELECT TOP 5
+		P.PRODUCT_NAME,
+		P.PRODUCT_PRICE,
+		P_I.IMAGE_NAME,
+		P.PRODUCT_STATUS
+	FROM PRODUCTS P
+	LEFT JOIN PRODUCT_IMAGE P_I ON P.PRODUCT_ID = P_I.PRODUCT_ID
+	WHERE P.CATEGORY_ID = @p_CATEGORY_ID
+	AND P.PRODUCT_ID != @p_PRODUCT_ID -- Loại trừ sản phẩm đang xem
+	ORDER BY P.PRODUCT_ID;END
+GO

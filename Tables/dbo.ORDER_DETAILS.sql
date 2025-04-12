@@ -1,0 +1,13 @@
+﻿CREATE TABLE [dbo].[ORDER_DETAILS] (
+  [ID] [int] IDENTITY,
+  [PRODUCT_ID] [int] NOT NULL,
+  [QUANTITY] [int] NOT NULL,
+  [PRODUCT_PRICE] [decimal](10, 2) NOT NULL,
+  [SUBTOTAL] [decimal](10, 2) NULL,
+  [ORDER_ID] [nvarchar](255) NOT NULL,
+  [CREATED_AT] [datetime] NULL DEFAULT (getdate()),
+  PRIMARY KEY CLUSTERED ([ID]),
+  CHECK ([QUANTITY]>(0))
+)
+ON [PRIMARY]
+GO

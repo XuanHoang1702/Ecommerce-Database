@@ -1,0 +1,134 @@
+﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+CREATE PROCEDURE [dbo].[PRODUCT_Create]
+	@p_PRODUCT_DATA_JSON NVARCHAR(MAX)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	BEGIN TRANSACTION
+	BEGIN  TRY
+		DECLARE	 @p_ADMIN_ID NVARCHAR(10),
+				 @p_PRODUCT_NAME NVARCHAR(100),
+				 @p_PRODUCT_PRICE DECIMAL(10, 2),
+				 @p_PRODUCT_DETAIL NVARCHAR(MAX),
+				 @p_PRODUCT_DESCRIPTION NVARCHAR(MAX),
+				 @p_BRAND_ID INT,
+				 @p_CATEGORY_ID INT,
+				 @p_PRODUCT_STATUS NVARCHAR(10)
+
+		SELECT  @p_ADMIN_ID = AdminId,
+			    @p_PRODUCT_NAME = ProductName,
+				@p_PRODUCT_PRICE = ProductPrice,
+				@p_PRODUCT_DETAIL = ProductDetail,
+				@p_PRODUCT_DESCRIPTION = ProductDescription,
+				@p_BRAND_ID = BrandId,
+				@p_CATEGORY_ID = CategoryId,
+				@p_PRODUCT_STATUS = ProductStatus
+
+		FROM OPENJSON(@p_PRODUCT_DATA_JSON)
+		WITH(
+			AdminId NVARCHAR(10) '$.ADMIN_ID',
+			ProductName NVARCHAR(100) '$.PRODUCT_NAME',
+			ProductPrice DECIMAL(10, 2) '$.PRODUCT_PRICE',
+			ProductDetail NVARCHAR(MAX) '$.PRODUCT_DETAIL',
+			ProductDescription NVARCHAR(MAX) '$.PRODUCT_DESCRIPTION',
+			BrandId INT '$.BRAND_ID',
+			CategoryId INT '$.CATEGORY_ID',
+			ProductStatus NVARCHAR(10) '$.PRODUCT_STATUS'
+		)
+
+		declare @p_ROLE_RESULT nvarchar(10)
+		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
+
+		if @p_ROLE_RESULT != 'OK'
+		begin
+			rollback transaction
+			select N'Không đủ quyền' as RESULT,
+					403 as CODE
+			return
+		end
+
+
+		IF NOT EXISTS (SELECT 1 FROM BRANDS WHERE BRAND_ID = @p_BRAND_ID)
+		BEGIN
+			ROLLBACK TRANSACTION
+			select N'Không tìm thấy thương hiệu' as RESULT,
+					404 as CODE
+			RETURN
+		END
+
+		IF NOT EXISTS (SELECT 1 FROM CATEGORIES WHERE CATEGORY_ID = @p_CATEGORY_ID)
+		BEGIN
+			ROLLBACK TRANSACTION 
+			select N'Không tìm thấy danh mục' as RESULT,
+					404 as CODE
+			RETURN
+		END
+
+		IF @p_PRODUCT_NAME IS NULL OR @p_PRODUCT_NAME = ''
+		BEGIN
+			ROLLBACK TRANSACTION
+			select N'Dữ liệu không thể trống' as RESULT,
+					422 as CODE
+			
+			RETURN
+		END
+
+		IF @p_PRODUCT_DETAIL IS NULL OR @p_PRODUCT_DETAIL = ''
+		BEGIN 
+			ROLLBACK TRANSACTION
+			select N'Chi tiết sản phẩm không được để trống' as RESULT,
+					422 as CODE 
+			RETURN
+		END
+
+		IF @p_PRODUCT_DESCRIPTION IS NULL OR @p_PRODUCT_DESCRIPTION = ''
+		BEGIN 
+			ROLLBACK TRANSACTION
+			select N'Mô tả sản phẩm không được để trống' as RESULT,
+					422 as CODE 
+			RETURN
+		END
+
+		INSERT INTO PRODUCTS (
+		PRODUCT_NAME,
+		PRODUCT_PRICE,
+		PRODUCT_DETAIL,
+		PRODUCT_DESCRIPTION,
+		BRAND_ID,
+		CATEGORY_ID,
+		PRODUCT_STATUS,
+		CREATED_AT,
+		UPDATED_AT
+		)
+		VALUES (
+			@p_PRODUCT_NAME,
+			@p_PRODUCT_PRICE,
+			@p_PRODUCT_DETAIL,
+			@p_PRODUCT_DESCRIPTION,
+			@p_BRAND_ID,
+			@p_CATEGORY_ID,
+			@p_PRODUCT_STATUS,
+			GETDATE(),
+			GETDATE()
+		)
+
+		IF @@ROWCOUNT <> 0
+		BEGIN
+			SELECT *, 'Tạo sản phẩm thành công' as RESULT, 201 as CODE
+			FROM PRODUCTS
+			WHERE PRODUCT_NAME = @p_PRODUCT_NAME
+			COMMIT TRANSACTION
+		END
+
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION
+		select ERROR_MESSAGE() as RESULT,
+				ERROR_NUMBER() as CODE
+		RETURN
+	END CATCH
+END
+GO

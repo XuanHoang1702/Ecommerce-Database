@@ -1,8 +1,8 @@
 ﻿SET QUOTED_IDENTIFIER, ANSI_NULLS ON
 GO
 CREATE PROCEDURE [dbo].[CHECK_ROLE](
-	@p_ADMIN_ID nvarchar(10),
-	@p_RESULT nvarchar(10) output 
+	@p_ADMIN_ID nvarchar(20),
+	@p_RESULT int output 
 
 )
 AS
@@ -17,11 +17,11 @@ BEGIN
 		  AND [ROLE] IN ('CEO', 'CTO', 'CFO')
 	)
 	BEGIN
-		SET @p_RESULT = 'OK';
+		SET @p_RESULT = 1;
 	END
 	ELSE
 	BEGIN
-		SET @p_RESULT = 'NO';
+		SET @p_RESULT = 0;
 	END
 END
 GO

@@ -16,14 +16,14 @@ BEGIN
 				 @p_PARENT_ID int,
 				 @p_MENU_STATUS nvarchar(10)
 
-		select	 @p_ADMIN_ID = AdminId,
+		select	 @p_ADMIN_ID = ADMIN_ID,
 				 @p_MENU_NAME = MenuName,
 				 @p_MENU_LINK = MenuLink,
 				 @p_PARENT_ID = ParentId,
 				 @p_MENU_STATUS = MenuStatus
 		from openjson(@p_MENU_DATA_JSON)
 		with(
-			AdminId nvarchar(20) '$.ADMIN_ID',
+			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
 			MenuName nvarchar(50) '$.MENU_NAME',
 			MenuLink nvarchar(50) '$.MENU_LINK',
 			ParentId int '$.PARENT_ID',
@@ -33,7 +33,7 @@ BEGIN
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

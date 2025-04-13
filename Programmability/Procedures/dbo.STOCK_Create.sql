@@ -14,14 +14,14 @@ BEGIN
 				 @p_PRICE_ROOT decimal(10, 2),
 				 @p_QUANTITY int
 
-		select	 @p_ADMIN_ID = AdminId,
+		select	 @p_ADMIN_ID = ADMIN_ID,
 				 @p_PRODUCT_ID = ProductId,
 				 @p_PRICE_ROOT = PriceRoot,
 				 @p_QUANTITY = Quantity
 
 		from openjson(@p_STOCK_DATA_JSON)
 		with(
-			AdminId nvarchar(20) '$.ADMIN_ID',
+			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
 			ProductId int '$.PRODUCT_ID',
 			PriceRoot decimal(10, 2) '$.PRICE_ROOT',
 			Quantity int '$.QUANTITY'
@@ -30,7 +30,7 @@ BEGIN
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

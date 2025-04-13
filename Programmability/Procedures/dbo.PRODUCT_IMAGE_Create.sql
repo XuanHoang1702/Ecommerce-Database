@@ -14,13 +14,13 @@ BEGIN
 				 @p_PRODUCT_ID int,
 				 @p_IMAGE_STATUS nvarchar(20)
 
-		select	@p_ADMIN_ID = AdminId,
+		select	@p_ADMIN_ID = ADMIN_ID,
 				@p_IMAGE_NAME = ImageName,
 				@p_PRODUCT_ID = ProductId,
 				@p_IMAGE_STATUS = ImageStatus
 		from openjson(@p_PRODUCT_IMAGE_DATA)
 		with(
-			AdminId nvarchar(20) '$.ADMIN_ID',
+			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
 			ImageName nvarchar(20) '$.IMAGE_NAME',
 			ProductId int '$.PRODUCT_ID',
 			ImageStatus nvarchar(10) '$.IMAGE_STATUS'
@@ -29,7 +29,7 @@ BEGIN
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

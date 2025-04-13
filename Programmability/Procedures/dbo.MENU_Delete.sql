@@ -12,18 +12,18 @@ BEGIN
 	begin try
 		declare	 @p_ADMIN_ID varchar(20),
 				 @p_ID int
-		select	 @p_ADMIN_ID = AdminId,
+		select	 @p_ADMIN_ID = ADMIN_ID,
 				 @p_ID = Id
 		from openjson(@p_MENU_DATA_JSON)
 		with(
-			AdminId nvarchar(20) '$.ADMIN_ID',
+			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
 			ID INT '$.ID'
 		)
 
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

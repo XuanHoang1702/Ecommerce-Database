@@ -7,16 +7,16 @@ BEGIN
     SET NOCOUNT ON;
     BEGIN TRANSACTION
     BEGIN TRY
-        DECLARE @p_ADMIN_ID NVARCHAR(10),
+        DECLARE @p_ADMIN_ID NVARCHAR(20),
                 @p_ROLE NVARCHAR(10),
                 @p_ROLE_ACTION NVARCHAR(10)
 
         --
-        SELECT  @p_ADMIN_ID = AdminId,
+        SELECT  @p_ADMIN_ID = ADMIN_ID,
                 @p_ROLE_ACTION = RoleAction
         FROM OPENJSON(@p_ADMIN_DATA_JSON)
         WITH(
-            AdminId NVARCHAR(10) '$.ADMIN_ID',
+            ADMIN_ID NVARCHAR(20) '$.ADMIN_ID',
             RoleAction NVARCHAR(10) '$.ROLE_ACTION'
         )
 

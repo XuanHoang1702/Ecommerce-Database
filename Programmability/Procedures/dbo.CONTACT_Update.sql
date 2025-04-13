@@ -2,7 +2,7 @@
 GO
 CREATE PROCEDURE [dbo].[CONTACT_Update] 
 	@p_CONTACT_ID INT,
-	@p_ADMIN_ID NVARCHAR(10),
+	 @p_ADMIN_ID NVARCHAR(20),
 	@p_CONTACT_STATUS NVARCHAR(10)
 AS
 BEGIN
@@ -13,7 +13,7 @@ BEGIN
 	declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

@@ -9,21 +9,21 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRANSACTION
 	BEGIN TRY
-		DECLARE	 @p_ADMIN_ID NVARCHAR(10),
+		DECLARE	 @p_ADMIN_ID NVARCHAR(20),
 				 @p_CATEGORY_ID INT
 
-		SELECT	 @p_ADMIN_ID = AdminId,
+		SELECT	 @p_ADMIN_ID = ADMIN_ID,
 				 @p_CATEGORY_ID = CategoryId
 		FROM OPENJSON(@p_CATEGORY_DATA_JSON)
 		WITH(
-			AdminId NVARCHAR(10) '$.ADMIN_ID',
+			ADMIN_ID NVARCHAR(20) '$.ADMIN_ID',
 			CategoryId INT '$.CATEGORY_ID'
 		)
 
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

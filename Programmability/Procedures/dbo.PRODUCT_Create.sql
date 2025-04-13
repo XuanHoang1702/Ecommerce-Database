@@ -9,7 +9,7 @@ BEGIN
 	SET NOCOUNT ON;
 	BEGIN TRANSACTION
 	BEGIN  TRY
-		DECLARE	 @p_ADMIN_ID NVARCHAR(10),
+		DECLARE	 @p_ADMIN_ID NVARCHAR(20),
 				 @p_PRODUCT_NAME NVARCHAR(100),
 				 @p_PRODUCT_PRICE DECIMAL(10, 2),
 				 @p_PRODUCT_DETAIL NVARCHAR(MAX),
@@ -18,7 +18,7 @@ BEGIN
 				 @p_CATEGORY_ID INT,
 				 @p_PRODUCT_STATUS NVARCHAR(10)
 
-		SELECT  @p_ADMIN_ID = AdminId,
+		SELECT  @p_ADMIN_ID = ADMIN_ID,
 			    @p_PRODUCT_NAME = ProductName,
 				@p_PRODUCT_PRICE = ProductPrice,
 				@p_PRODUCT_DETAIL = ProductDetail,
@@ -29,7 +29,7 @@ BEGIN
 
 		FROM OPENJSON(@p_PRODUCT_DATA_JSON)
 		WITH(
-			AdminId NVARCHAR(10) '$.ADMIN_ID',
+			ADMIN_ID NVARCHAR(20) '$.ADMIN_ID',
 			ProductName NVARCHAR(100) '$.PRODUCT_NAME',
 			ProductPrice DECIMAL(10, 2) '$.PRODUCT_PRICE',
 			ProductDetail NVARCHAR(MAX) '$.PRODUCT_DETAIL',
@@ -42,7 +42,7 @@ BEGIN
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

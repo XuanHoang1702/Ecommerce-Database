@@ -23,7 +23,7 @@ BEGIN
 			RETURN
 		END
 
-		SELECT	@p_ADMIN_ID = AdminId,
+		SELECT	@p_ADMIN_ID = ADMIN_ID,
 				@p_DISCOUNT_ID = DiscountId,
 				@p_PRODUCT_ID = ProductId,
 				@p_DISCOUNT_PERCENT = DiscountPercent,
@@ -32,7 +32,7 @@ BEGIN
 				@p_DISCOUNT_STATUS = DiscountStatus
 		FROM OPENJSON(@p_DISCOUNT_DATA_JSON)
 		WITH (
-			AdminId nvarchar '$.ADMIN_ID',
+			ADMIN_ID nvarchar '$.ADMIN_ID',
 			DiscountId int '$.DISCOUNT_ID',
 			ProductId int '$.PRODUCT_ID',
 			DiscountPercent decimal(10, 2) '$.DISCOUNT_PERCENT',
@@ -44,7 +44,7 @@ BEGIN
 		declare @p_ROLE_RESULT nvarchar(10)
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		if @p_ROLE_RESULT != 'OK'
+		IF @p_ROLE_RESULT <> 1
 		begin
 			rollback transaction
 			select N'Không đủ quyền' as RESULT,

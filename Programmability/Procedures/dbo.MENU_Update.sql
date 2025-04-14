@@ -17,6 +17,7 @@ BEGIN
 				 @p_MENU_STATUS nvarchar(10)
 
 		select	 @p_ADMIN_ID = ADMIN_ID,
+				 @p_ID = ID,
 				 @p_MENU_NAME = MenuName,
 				 @p_MENU_LINK = MenuLink,
 				 @p_PARENT_ID = ParentId,
@@ -24,6 +25,7 @@ BEGIN
 		from openjson(@p_MENU_DATA_JSON)
 		with(
 			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
+			ID int '$.ID',
 			MenuName nvarchar(50) '$.MENU_NAME',
 			MenuLink nvarchar(50) '$.MENU_LINK',
 			ParentId int '$.PARENT_ID',
@@ -61,7 +63,7 @@ BEGIN
 		if @@ROWCOUNT <> 0
 		begin
 		commit transaction
-			select 'Cập nhật menu thành công' as RESULT,
+			select N'Cập nhật menu thành công' as RESULT,
 					200 as CODE
 		end
 	end try

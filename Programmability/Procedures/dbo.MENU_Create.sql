@@ -29,7 +29,7 @@ BEGIN
 			MenuStatus NVARCHAR(10) '$.MENU_STATUS'
 		)
 
-		declare @p_ROLE_RESULT nvarchar(10)
+		declare @p_ROLE_RESULT int
 		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
 		IF @p_ROLE_RESULT <> 1
@@ -58,7 +58,7 @@ BEGIN
 				@p_MENU_LINK AS MENU_LINK,
 				@p_PARENT_ID AS PARENT_ID,
 				@p_MENU_STATUS AS MENU_STATUS,
-				'Tạo menu thành công' as RESULT,
+				N'Tạo menu thành công' as RESULT,
 				201 as CODE
 	END
 

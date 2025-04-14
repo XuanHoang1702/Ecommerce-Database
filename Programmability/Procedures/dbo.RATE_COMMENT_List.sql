@@ -8,13 +8,15 @@ BEGIN
 	SET NOCOUNT ON;
 	IF @p_PRODUCT_ID IS NULL
     BEGIN
-        RAISERROR('Product ID cannot be NULL', 16, 1);
+        select N'Mã sản phẩm không được để trống' as RESULT,
+				422 as CODE
         RETURN;
     END
 
     IF NOT EXISTS (SELECT 1 FROM PRODUCTS WHERE PRODUCT_ID = @p_PRODUCT_ID)
     BEGIN
-        RAISERROR('No product found for Product ID: %d', 16, 1, @p_PRODUCT_ID);
+        select N'Không tồn tại sản phẩm cần đánh giá ' as RESULT,
+				404 as CODE
         RETURN;
     END
 

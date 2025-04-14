@@ -32,7 +32,7 @@ BEGIN
 				@p_DISCOUNT_STATUS = DiscountStatus
 		FROM OPENJSON(@p_DISCOUNT_DATA_JSON)
 		WITH (
-			ADMIN_ID nvarchar '$.ADMIN_ID',
+			ADMIN_ID nvarchar(20) '$.ADMIN_ID',
 			DiscountId int '$.DISCOUNT_ID',
 			ProductId int '$.PRODUCT_ID',
 			DiscountPercent decimal(10, 2) '$.DISCOUNT_PERCENT',
@@ -41,16 +41,16 @@ BEGIN
 			DiscountStatus nvarchar(10) '$.DISCOUNT_STATUS'
 		)
 
-		declare @p_ROLE_RESULT nvarchar(10)
-		exec [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT output
 
-		IF @p_ROLE_RESULT <> 1
-		begin
-			rollback transaction
-			select N'Không đủ quyền' as RESULT,
-					403 as CODE
-			return
-		end
+        DECLARE @p_ROLE_RESULT int;
+        EXEC [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT OUTPUT;
+
+        IF @p_ROLE_RESULT <> 1
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT N'Không đủ quyền' AS RESULT, 403 AS CODE;
+            RETURN;
+        END
 
 		IF NOT EXISTS (SELECT 1 FROM DISCOUNT WHERE DISCOUNT_ID = @p_DISCOUNT_ID)
 		BEGIN

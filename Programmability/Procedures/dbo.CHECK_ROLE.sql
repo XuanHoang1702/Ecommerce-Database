@@ -7,8 +7,6 @@ CREATE PROCEDURE [dbo].[CHECK_ROLE](
 )
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 	IF EXISTS (
 		SELECT 1 

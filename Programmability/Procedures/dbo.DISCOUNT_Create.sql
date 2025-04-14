@@ -29,7 +29,7 @@ BEGIN
         );
 
         DECLARE @p_ROLE_RESULT int;
-        EXEC [dbo].[CHECK_ROLE] @p_ADMIN = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT OUTPUT;
+        EXEC [dbo].[CHECK_ROLE] @p_ADMIN_ID = @p_ADMIN_ID, @p_RESULT = @p_ROLE_RESULT OUTPUT;
 
         IF @p_ROLE_RESULT <> 1
         BEGIN

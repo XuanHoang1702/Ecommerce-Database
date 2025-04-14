@@ -33,9 +33,9 @@ BEGIN
 
 		delete 
 		from MENU
-		where ID = @p_ID and PARENT_ID = @p_ID
+		where ID = @p_ID
 
-		if @@ROWCOUNT = 1
+		if @@ROWCOUNT <> 0
 		begin 
 			commit transaction
 			select 'Xóa thành công' as RESULT

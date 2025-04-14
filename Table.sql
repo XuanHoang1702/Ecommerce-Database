@@ -106,7 +106,3 @@ SELECT * FROM TASK
 
 
 select * from BANNER
-
-SELECT COUNT(*) AS TotalProcedures
-FROM sys.objects
-WHERE type = 'P';

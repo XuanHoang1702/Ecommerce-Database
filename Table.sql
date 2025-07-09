@@ -85,3 +85,4 @@ alter column USER_ID nvarchar(255)
 
 select * from DEVICES
 select * from USERS where USER_LAST_NAME = 'Tran'
+select * from PRODUCTS where BRAND_ID = 1
